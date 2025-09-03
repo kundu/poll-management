@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: poptin-app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+      - ./.env.docker:/var/www/html/.env
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    depends_on:
+      - mysql
+      - redis
+      - reverb
+    networks:
+      - poptin-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: poptin-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: poll_management
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: poll_user
+      MYSQL_PASSWORD: poll_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - poptin-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: poptin-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - poptin-network
+
+  reverb:
+    image: laravel/reverb:latest
+    container_name: poptin-reverb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - REVERB_APP_ID=748313
+      - REVERB_APP_KEY=aeg2d2cvyxnltq9mfayp
+      - REVERB_APP_SECRET=xj6c42tuecdwsvjysxlh
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+      - REVERB_DEBUG=true
+    networks:
+      - poptin-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: poptin-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+    depends_on:
+      - mysql
+    networks:
+      - poptin-network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  poptin-network:
+    driver: bridge

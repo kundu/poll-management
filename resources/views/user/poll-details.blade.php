@@ -553,7 +553,7 @@
 
     <script>
         // Global configuration
-        const API_BASE_URL = 'http://localhost:8000/api';
+        const API_BASE_URL = '{{ url("/api") }}';
         const POLL_ID = {{ $pollId }};
 
         // Poll data

@@ -83,13 +83,6 @@
 
     // Test WebSocket connection
     function testWebSocketConnection() {
-        console.log('Testing WebSocket connection...');
-        console.log('Reverb Config:', {
-            appKey: REVERB_APP_KEY,
-            host: REVERB_HOST,
-            port: REVERB_PORT,
-            scheme: REVERB_SCHEME
-        });
 
         if (pusher) {
             pusher.disconnect();
@@ -100,13 +93,6 @@
     // Initialize WebSocket connection using Pusher
     function initializeWebSocket() {
                 try {
-            console.log('Attempting to connect to Reverb WebSocket...');
-            console.log('Configuration:', {
-                appKey: REVERB_APP_KEY,
-                host: REVERB_HOST,
-                port: REVERB_PORT,
-                scheme: REVERB_SCHEME
-            });
             updateConnectionStatus(false, 'Connecting...');
 
             // Initialize Pusher with Reverb configuration
@@ -121,17 +107,12 @@
                 encrypted: REVERB_SCHEME === 'https',
             });
 
-            console.log('Pusher instance created successfully');
-
                         // Connection event handlers
             pusher.connection.bind('connecting', function() {
-                console.log('WebSocket connecting...');
                 updateConnectionStatus(false, 'Connecting...');
             });
 
             pusher.connection.bind('connected', function() {
-                console.log('WebSocket connected successfully');
-                console.log('Connection state:', pusher.connection.state);
                 isConnected = true;
                 updateConnectionStatus(true, 'Connected');
 
@@ -140,7 +121,6 @@
             });
 
             pusher.connection.bind('disconnected', function() {
-                console.log('WebSocket disconnected');
                 isConnected = false;
                 updateConnectionStatus(false, 'Disconnected');
             });
@@ -180,12 +160,9 @@
     function subscribeToChannel() {
         if (pusher && isConnected) {
             try {
-                console.log('Attempting to subscribe to admin-votes channel...');
                 channel = pusher.subscribe('admin-votes');
 
                 channel.bind('pusher:subscription_succeeded', function(data) {
-                    console.log('Successfully subscribed to admin-votes channel');
-                    console.log('Subscription data:', data);
                 });
 
                 channel.bind('pusher:subscription_error', function(error) {
@@ -193,11 +170,8 @@
                 });
 
                 channel.bind('vote.cast', function(data) {
-                    console.log('Vote update received:', data);
                     handleVoteUpdate(data);
                 });
-
-                console.log('Channel subscription initiated');
             } catch (error) {
                 console.error('Failed to subscribe to channel:', error);
             }
@@ -219,7 +193,6 @@
 
         // Handle vote updates from WebSocket
     function handleVoteUpdate(data) {
-        console.log('Vote update received:', data);
 
         // Update the specific poll option
         updatePollOption(data.poll_id, data.option_id, data.vote_count, data.total_votes, data.percentage);
@@ -396,8 +369,6 @@
             const pollCard = createPollCard(poll);
             pollsGrid.appendChild(pollCard);
         });
-
-        console.log(`${append ? 'Appended' : 'Loaded'} ${polls.length} polls`);
     }
 
         // Create individual poll card
